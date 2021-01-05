@@ -14,9 +14,9 @@
 /// ```
 use core::fmt;
 
-use crate::primitive::sync::Arc;
 use crate::guard::Guard;
 use crate::internal::{Global, Local};
+use crate::primitive::sync::Arc;
 
 /// An epoch-based garbage collector.
 pub struct Collector {
@@ -199,6 +199,7 @@ mod tests {
         .unwrap();
     }
 
+    #[cfg(not(crossbeam_sanitize))] // TODO: assertions failed due to `cfg(crossbeam_sanitize)` reduce `internal::MAX_OBJECTS`
     #[test]
     fn incremental() {
         const COUNT: usize = 100_000;
