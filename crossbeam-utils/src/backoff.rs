@@ -208,13 +208,16 @@ impl Backoff {
                 atomic::spin_loop_hint();
             }
         } else {
-            #[cfg(not(feature = "std"))]
+            #[cfg(all(not(feature = "std"), not(loom_crossbeam)))]
             for _ in 0..1 << self.step.get() {
                 atomic::spin_loop_hint();
             }
 
-            #[cfg(feature = "std")]
+            #[cfg(all(feature = "std", not(loom_crossbeam)))]
             ::std::thread::yield_now();
+
+            #[cfg(loom_crossbeam)]
+            ::loom::thread::yield_now();
         }
 
         if self.step.get() <= YIELD_LIMIT {
